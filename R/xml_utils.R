@@ -7,7 +7,7 @@
 #     contains things such as the abstract,
 
 
-.xml_metadata <- function(article_xml, as_list = F) {
+.xml_metadata <- function(article_xml, as_list = FALSE) {
 
   # TODO: Consider adding: word count, number of titles, number of sections
   # TODO: Improve author format, e.g.
@@ -16,17 +16,17 @@
 
   meta <- list()
 
-  # article_xml %>%
-  #   xml2::xml_find_all(xpath = "//xref") %>%
-  #   xml2::xml_remove(free = T)
+  # article_xml |>
+  #   xml2::xml_find_all(xpath = "//xref") |>
+  #   xml2::xml_remove(free = TRUE)
 
-  article_xml %>%
-    xml2::xml_find_all(xpath = "//label") %>%
-    xml2::xml_remove(free = T)
+  article_xml |>
+    xml2::xml_find_all(xpath = "//label") |>
+    xml2::xml_remove(free = TRUE)
 
-  article_xml %>%
-    xml2::xml_find_all(xpath = "//sup") %>%
-    xml2::xml_remove(free = T)
+  article_xml |>
+    xml2::xml_find_all(xpath = "//sup") |>
+    xml2::xml_remove(free = TRUE)
 
   xpath <- c(
     "front/journal-meta//journal-title",
@@ -80,85 +80,85 @@
 
 
   meta <-
-    xpath %>%
-    lapply(.get_text, article_xml = article_xml, find_first = F) %>%
+    xpath |>
+    lapply(.get_text, article_xml = article_xml, find_first = FALSE) |>
     rlang::set_names(var_names)
 
 
   meta[["author"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']/name") %>%
-    lapply(function(x) xml2::xml_contents(x) %>% xml2::xml_text() %>% paste(collapse = " ")) %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']/name") |>
+    lapply(function(x) xml2::xml_contents(x) |> xml2::xml_text() |> paste(collapse = " ")) |>
     paste(collapse = "; ")
 
 
   meta[["author_aff_id"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") %>%
-    lapply(function(x) xml2::xml_find_all(x, "xref") %>% xml2::xml_attr("rid") %>% paste(collapse = ", ")) %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") |>
+    lapply(function(x) xml2::xml_find_all(x, "xref") |> xml2::xml_attr("rid") |> paste(collapse = ", ")) |>
     paste(collapse = "; ")
 
 
   meta[["affiliation_aff_id"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//aff") %>%
-    xml2::xml_attr("id") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//aff") |>
+    xml2::xml_attr("id") |>
     paste(collapse = "; ")
 
 
   meta[["correspondence"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//author-notes/corresp") %>%
-    xml2::xml_text() %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//author-notes/corresp") |>
+    xml2::xml_text() |>
     paste(collapse = "; ")
 
 
   meta[["type"]] <-
-    article_xml %>%
+    article_xml |>
     xml2::xml_attr("article-type")
 
 
   meta[["n_auth"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") |>
     length()
 
   meta[["n_affiliation"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//aff") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//aff") |>
     length()
 
   meta[["n_ref"]] <-
-    article_xml %>%
-    xml2::xml_find_all("//back/ref-list/ref") %>%
+    article_xml |>
+    xml2::xml_find_all("//back/ref-list/ref") |>
     length()
 
   meta[["n_fig_body"]] <-
-    article_xml %>%
-    xml2::xml_find_all("body//fig") %>%
+    article_xml |>
+    xml2::xml_find_all("body//fig") |>
     length()
 
   meta[["n_fig_floats"]] <-
-    article_xml %>%
-    xml2::xml_find_all("floats-group/fig") %>%
+    article_xml |>
+    xml2::xml_find_all("floats-group/fig") |>
     length()
 
   meta[["n_table_body"]] <-
-    article_xml %>%
-    xml2::xml_find_all("body//table-wrap") %>%
+    article_xml |>
+    xml2::xml_find_all("body//table-wrap") |>
     length()
 
   meta[["n_table_floats"]] <-
-    article_xml %>%
-    xml2::xml_find_all("floats-group/table-wrap") %>%
+    article_xml |>
+    xml2::xml_find_all("floats-group/table-wrap") |>
     length()
 
   #
   supp <- "//*[self::supplementary-material or self::supplement]"
   meta[["is_supplement"]] <-
-    article_xml %>%
-    xml2::xml_find_all(supp) %>%
-    rlang::is_empty() %>%
+    article_xml |>
+    xml2::xml_find_all(supp) |>
+    rlang::is_empty() |>
     magrittr::not()
 
 
@@ -177,8 +177,8 @@
   if (!as_list) {
 
     meta <-
-      meta %>%
-      tibble::as_tibble() %>%
+      meta |>
+      tibble::as_tibble() |>
       dplyr::mutate_all(stringr::str_squish)
 
   }
@@ -188,17 +188,17 @@
 
 
 # Tiny improvement over all meta-data, so not worth it
-.xml_metadata_unique <- function(article_xml, as_list = F) {
+.xml_metadata_unique <- function(article_xml, as_list = FALSE) {
 
   meta <- list()
 
-  article_xml %>%
-    xml2::xml_find_all(xpath = "//label") %>%
-    xml2::xml_remove(free = T)
+  article_xml |>
+    xml2::xml_find_all(xpath = "//label") |>
+    xml2::xml_remove(free = TRUE)
 
-  article_xml %>%
-    xml2::xml_find_all(xpath = "//sup") %>%
-    xml2::xml_remove(free = T)
+  article_xml |>
+    xml2::xml_find_all(xpath = "//sup") |>
+    xml2::xml_remove(free = TRUE)
 
   xpath <- c(
     "front/journal-meta//journal-title",
@@ -244,80 +244,80 @@
 
 
   meta <-
-    xpath %>%
-    lapply(.get_text, article_xml = article_xml, find_first = F) %>%
+    xpath |>
+    lapply(.get_text, article_xml = article_xml, find_first = FALSE) |>
     rlang::set_names(var_names)
 
 
   meta[["author"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']/name") %>%
-    lapply(function(x) xml2::xml_contents(x) %>% xml2::xml_text() %>% paste(collapse = " ")) %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']/name") |>
+    lapply(function(x) xml2::xml_contents(x) |> xml2::xml_text() |> paste(collapse = " ")) |>
     paste(collapse = "; ")
 
 
   meta[["author_aff_id"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") %>%
-    lapply(function(x) xml2::xml_find_all(x, "xref") %>% xml2::xml_attr("rid") %>% paste(collapse = ", ")) %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") |>
+    lapply(function(x) xml2::xml_find_all(x, "xref") |> xml2::xml_attr("rid") |> paste(collapse = ", ")) |>
     paste(collapse = "; ")
 
 
   meta[["affiliation_aff_id"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//aff") %>%
-    xml2::xml_attr("id") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//aff") |>
+    xml2::xml_attr("id") |>
     paste(collapse = "; ")
 
 
   meta[["correspondence"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//author-notes/corresp") %>%
-    xml2::xml_text() %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//author-notes/corresp") |>
+    xml2::xml_text() |>
     paste(collapse = "; ")
 
 
   meta[["n_auth"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") |>
     length()
 
   meta[["n_affiliation"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//aff") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//aff") |>
     length()
 
   meta[["n_ref"]] <-
-    article_xml %>%
-    xml2::xml_find_all("//back/ref-list/ref") %>%
+    article_xml |>
+    xml2::xml_find_all("//back/ref-list/ref") |>
     length()
 
   meta[["n_fig_body"]] <-
-    article_xml %>%
-    xml2::xml_find_all("body//fig") %>%
+    article_xml |>
+    xml2::xml_find_all("body//fig") |>
     length()
 
   meta[["n_fig_floats"]] <-
-    article_xml %>%
-    xml2::xml_find_all("floats-group/fig") %>%
+    article_xml |>
+    xml2::xml_find_all("floats-group/fig") |>
     length()
 
   meta[["n_table_body"]] <-
-    article_xml %>%
-    xml2::xml_find_all("body//table-wrap") %>%
+    article_xml |>
+    xml2::xml_find_all("body//table-wrap") |>
     length()
 
   meta[["n_table_floats"]] <-
-    article_xml %>%
-    xml2::xml_find_all("floats-group/table-wrap") %>%
+    article_xml |>
+    xml2::xml_find_all("floats-group/table-wrap") |>
     length()
 
   #
   supp <- "//*[self::supplementary-material or self::supplement]"
   meta[["is_supplement"]] <-
-    article_xml %>%
-    xml2::xml_find_all(supp) %>%
-    rlang::is_empty() %>%
+    article_xml |>
+    xml2::xml_find_all(supp) |>
+    rlang::is_empty() |>
     magrittr::not()
 
 
@@ -335,8 +335,8 @@
   if (!as_list) {
 
     meta <-
-      meta %>%
-      tibble::as_tibble() %>%
+      meta |>
+      tibble::as_tibble() |>
       dplyr::mutate_all(stringr::str_squish)
 
   }
@@ -345,7 +345,7 @@
 }
 
 
-.xml_metadata_lean <- function(article_xml, as_list = F) {
+.xml_metadata_lean <- function(article_xml, as_list = FALSE) {
 
   meta <- list()
 
@@ -369,16 +369,16 @@
 
 
   meta <-
-    xpath %>%
-    lapply(.get_text, article_xml = article_xml, find_first = F) %>%
+    xpath |>
+    lapply(.get_text, article_xml = article_xml, find_first = FALSE) |>
     rlang::set_names(var_names)
 
 
   if (!as_list) {
 
     meta <-
-      meta %>%
-      tibble::as_tibble() %>%
+      meta |>
+      tibble::as_tibble() |>
       dplyr::mutate_all(stringr::str_squish)
 
   }
@@ -388,7 +388,7 @@
 
 
 # The complement of metadata_lean
-.xml_metadata_c <- function(article_xml, as_list = F) {
+.xml_metadata_c <- function(article_xml, as_list = FALSE) {
 
   # TODO: Consider adding: word count, number of titles, number of sections
   # TODO: Improve author format, e.g.
@@ -397,17 +397,17 @@
 
   meta <- list()
 
-  # article_xml %>%
-  #   xml2::xml_find_all(xpath = "//xref") %>%
-  #   xml2::xml_remove(free = T)
+  # article_xml |>
+  #   xml2::xml_find_all(xpath = "//xref") |>
+  #   xml2::xml_remove(free = TRUE)
 
-  article_xml %>%
-    xml2::xml_find_all(xpath = "//label") %>%
-    xml2::xml_remove(free = T)
+  article_xml |>
+    xml2::xml_find_all(xpath = "//label") |>
+    xml2::xml_remove(free = TRUE)
 
-  article_xml %>%
-    xml2::xml_find_all(xpath = "//sup") %>%
-    xml2::xml_remove(free = T)
+  article_xml |>
+    xml2::xml_find_all(xpath = "//sup") |>
+    xml2::xml_remove(free = TRUE)
 
   xpath <- c(
     "front/article-meta/article-id[@pub-id-type = 'pmid']",
@@ -447,80 +447,80 @@
 
 
   meta <-
-    xpath %>%
-    lapply(.get_text, article_xml = article_xml, find_first = F) %>%
+    xpath |>
+    lapply(.get_text, article_xml = article_xml, find_first = FALSE) |>
     rlang::set_names(var_names)
 
 
   meta[["author"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']/name") %>%
-    lapply(function(x) xml2::xml_contents(x) %>% xml2::xml_text() %>% paste(collapse = " ")) %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']/name") |>
+    lapply(function(x) xml2::xml_contents(x) |> xml2::xml_text() |> paste(collapse = " ")) |>
     paste(collapse = "; ")
 
 
   meta[["author_aff_id"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") %>%
-    lapply(function(x) xml2::xml_find_all(x, "xref") %>% xml2::xml_attr("rid") %>% paste(collapse = ", ")) %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") |>
+    lapply(function(x) xml2::xml_find_all(x, "xref") |> xml2::xml_attr("rid") |> paste(collapse = ", ")) |>
     paste(collapse = "; ")
 
 
   meta[["affiliation_aff_id"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//aff") %>%
-    xml2::xml_attr("id") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//aff") |>
+    xml2::xml_attr("id") |>
     paste(collapse = "; ")
 
 
   meta[["correspondence"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//author-notes/corresp") %>%
-    xml2::xml_text() %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//author-notes/corresp") |>
+    xml2::xml_text() |>
     paste(collapse = "; ")
 
 
   meta[["n_auth"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") |>
     length()
 
   meta[["n_affiliation"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//aff") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//aff") |>
     length()
 
   meta[["n_ref"]] <-
-    article_xml %>%
-    xml2::xml_find_all("//back/ref-list/ref") %>%
+    article_xml |>
+    xml2::xml_find_all("//back/ref-list/ref") |>
     length()
 
   meta[["n_fig_body"]] <-
-    article_xml %>%
-    xml2::xml_find_all("body//fig") %>%
+    article_xml |>
+    xml2::xml_find_all("body//fig") |>
     length()
 
   meta[["n_fig_floats"]] <-
-    article_xml %>%
-    xml2::xml_find_all("floats-group/fig") %>%
+    article_xml |>
+    xml2::xml_find_all("floats-group/fig") |>
     length()
 
   meta[["n_table_body"]] <-
-    article_xml %>%
-    xml2::xml_find_all("body//table-wrap") %>%
+    article_xml |>
+    xml2::xml_find_all("body//table-wrap") |>
     length()
 
   meta[["n_table_floats"]] <-
-    article_xml %>%
-    xml2::xml_find_all("floats-group/table-wrap") %>%
+    article_xml |>
+    xml2::xml_find_all("floats-group/table-wrap") |>
     length()
 
   #
   supp <- "//*[self::supplementary-material or self::supplement]"
   meta[["is_supplement"]] <-
-    article_xml %>%
-    xml2::xml_find_all(supp) %>%
-    rlang::is_empty() %>%
+    article_xml |>
+    xml2::xml_find_all(supp) |>
+    rlang::is_empty() |>
     magrittr::not()
 
 
@@ -539,8 +539,8 @@
   if (!as_list) {
 
     meta <-
-      meta %>%
-      tibble::as_tibble() %>%
+      meta |>
+      tibble::as_tibble() |>
       dplyr::mutate_all(stringr::str_squish)
 
   }
@@ -550,7 +550,7 @@
 
 
 # Use this when retrieving all indicators and meta-data at the same time
-.xml_metadata_all <- function(article_xml, as_list = F) {
+.xml_metadata_all <- function(article_xml, as_list = FALSE) {
 
   # TODO: Consider adding: word count, number of titles, number of sections
   # TODO: Improve author format, e.g.
@@ -559,17 +559,17 @@
 
   meta <- list()
 
-  # article_xml %>%
-  #   xml2::xml_find_all(xpath = "//xref") %>%
-  #   xml2::xml_remove(free = T)
+  # article_xml |>
+  #   xml2::xml_find_all(xpath = "//xref") |>
+  #   xml2::xml_remove(free = TRUE)
 
-  article_xml %>%
-    xml2::xml_find_all(xpath = "//label") %>%
-    xml2::xml_remove(free = T)
+  article_xml |>
+    xml2::xml_find_all(xpath = "//label") |>
+    xml2::xml_remove(free = TRUE)
 
-  article_xml %>%
-    xml2::xml_find_all(xpath = "//sup") %>%
-    xml2::xml_remove(free = T)
+  article_xml |>
+    xml2::xml_find_all(xpath = "//sup") |>
+    xml2::xml_remove(free = TRUE)
 
   xpath <- c(
     "front/journal-meta//journal-title",
@@ -615,80 +615,80 @@
 
 
   meta <-
-    xpath %>%
-    lapply(.get_text, article_xml = article_xml, find_first = F) %>%
+    xpath |>
+    lapply(.get_text, article_xml = article_xml, find_first = FALSE) |>
     rlang::set_names(var_names)
 
 
   meta[["author"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']/name") %>%
-    lapply(function(x) xml2::xml_contents(x) %>% xml2::xml_text() %>% paste(collapse = " ")) %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']/name") |>
+    lapply(function(x) xml2::xml_contents(x) |> xml2::xml_text() |> paste(collapse = " ")) |>
     paste(collapse = "; ")
 
 
   meta[["author_aff_id"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") %>%
-    lapply(function(x) xml2::xml_find_all(x, "xref") %>% xml2::xml_attr("rid") %>% paste(collapse = ", ")) %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") |>
+    lapply(function(x) xml2::xml_find_all(x, "xref") |> xml2::xml_attr("rid") |> paste(collapse = ", ")) |>
     paste(collapse = "; ")
 
 
   meta[["affiliation_aff_id"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//aff") %>%
-    xml2::xml_attr("id") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//aff") |>
+    xml2::xml_attr("id") |>
     paste(collapse = "; ")
 
 
   meta[["correspondence"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//author-notes/corresp") %>%
-    xml2::xml_text() %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//author-notes/corresp") |>
+    xml2::xml_text() |>
     paste(collapse = "; ")
 
 
   meta[["n_auth"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") |>
     length()
 
   meta[["n_affiliation"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//aff") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//aff") |>
     length()
 
   meta[["n_ref"]] <-
-    article_xml %>%
-    xml2::xml_find_all("//back/ref-list/ref") %>%
+    article_xml |>
+    xml2::xml_find_all("//back/ref-list/ref") |>
     length()
 
   meta[["n_fig_body"]] <-
-    article_xml %>%
-    xml2::xml_find_all("body//fig") %>%
+    article_xml |>
+    xml2::xml_find_all("body//fig") |>
     length()
 
   meta[["n_fig_floats"]] <-
-    article_xml %>%
-    xml2::xml_find_all("floats-group/fig") %>%
+    article_xml |>
+    xml2::xml_find_all("floats-group/fig") |>
     length()
 
   meta[["n_table_body"]] <-
-    article_xml %>%
-    xml2::xml_find_all("body//table-wrap") %>%
+    article_xml |>
+    xml2::xml_find_all("body//table-wrap") |>
     length()
 
   meta[["n_table_floats"]] <-
-    article_xml %>%
-    xml2::xml_find_all("floats-group/table-wrap") %>%
+    article_xml |>
+    xml2::xml_find_all("floats-group/table-wrap") |>
     length()
 
   #
   supp <- "//*[self::supplementary-material or self::supplement]"
   meta[["is_supplement"]] <-
-    article_xml %>%
-    xml2::xml_find_all(supp) %>%
-    rlang::is_empty() %>%
+    article_xml |>
+    xml2::xml_find_all(supp) |>
+    rlang::is_empty() |>
     magrittr::not()
 
 
@@ -706,8 +706,8 @@
   if (!as_list) {
 
     meta <-
-      meta %>%
-      tibble::as_tibble() %>%
+      meta |>
+      tibble::as_tibble() |>
       dplyr::mutate_all(stringr::str_squish)
 
   }
@@ -718,17 +718,17 @@
 
 
 # Tiny improvement over all meta-data, so not worth it
-.xml_metadata_unique <- function(article_xml, as_list = F) {
+.xml_metadata_unique <- function(article_xml, as_list = FALSE) {
 
   meta <- list()
 
-  article_xml %>%
-    xml2::xml_find_all(xpath = "//label") %>%
-    xml2::xml_remove(free = T)
+  article_xml |>
+    xml2::xml_find_all(xpath = "//label") |>
+    xml2::xml_remove(free = TRUE)
 
-  article_xml %>%
-    xml2::xml_find_all(xpath = "//sup") %>%
-    xml2::xml_remove(free = T)
+  article_xml |>
+    xml2::xml_find_all(xpath = "//sup") |>
+    xml2::xml_remove(free = TRUE)
 
   xpath <- c(
     "front/journal-meta//journal-title",
@@ -774,80 +774,80 @@
 
 
   meta <-
-    xpath %>%
-    lapply(.get_text, article_xml = article_xml, find_first = F) %>%
+    xpath |>
+    lapply(.get_text, article_xml = article_xml, find_first = FALSE) |>
     rlang::set_names(var_names)
 
 
   meta[["author"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']/name") %>%
-    lapply(function(x) xml2::xml_contents(x) %>% xml2::xml_text() %>% paste(collapse = " ")) %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']/name") |>
+    lapply(function(x) xml2::xml_contents(x) |> xml2::xml_text() |> paste(collapse = " ")) |>
     paste(collapse = "; ")
 
 
   meta[["author_aff_id"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") %>%
-    lapply(function(x) xml2::xml_find_all(x, "xref") %>% xml2::xml_attr("rid") %>% paste(collapse = ", ")) %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") |>
+    lapply(function(x) xml2::xml_find_all(x, "xref") |> xml2::xml_attr("rid") |> paste(collapse = ", ")) |>
     paste(collapse = "; ")
 
 
   meta[["affiliation_aff_id"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//aff") %>%
-    xml2::xml_attr("id") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//aff") |>
+    xml2::xml_attr("id") |>
     paste(collapse = "; ")
 
 
   meta[["correspondence"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//author-notes/corresp") %>%
-    xml2::xml_text() %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//author-notes/corresp") |>
+    xml2::xml_text() |>
     paste(collapse = "; ")
 
 
   meta[["n_auth"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//contrib[@contrib-type = 'author']") |>
     length()
 
   meta[["n_affiliation"]] <-
-    article_xml %>%
-    xml2::xml_find_all("front/article-meta//aff") %>%
+    article_xml |>
+    xml2::xml_find_all("front/article-meta//aff") |>
     length()
 
   meta[["n_ref"]] <-
-    article_xml %>%
-    xml2::xml_find_all("//back/ref-list/ref") %>%
+    article_xml |>
+    xml2::xml_find_all("//back/ref-list/ref") |>
     length()
 
   meta[["n_fig_body"]] <-
-    article_xml %>%
-    xml2::xml_find_all("body//fig") %>%
+    article_xml |>
+    xml2::xml_find_all("body//fig") |>
     length()
 
   meta[["n_fig_floats"]] <-
-    article_xml %>%
-    xml2::xml_find_all("floats-group/fig") %>%
+    article_xml |>
+    xml2::xml_find_all("floats-group/fig") |>
     length()
 
   meta[["n_table_body"]] <-
-    article_xml %>%
-    xml2::xml_find_all("body//table-wrap") %>%
+    article_xml |>
+    xml2::xml_find_all("body//table-wrap") |>
     length()
 
   meta[["n_table_floats"]] <-
-    article_xml %>%
-    xml2::xml_find_all("floats-group/table-wrap") %>%
+    article_xml |>
+    xml2::xml_find_all("floats-group/table-wrap") |>
     length()
 
   #
   supp <- "//*[self::supplementary-material or self::supplement]"
   meta[["is_supplement"]] <-
-    article_xml %>%
-    xml2::xml_find_all(supp) %>%
-    rlang::is_empty() %>%
+    article_xml |>
+    xml2::xml_find_all(supp) |>
+    rlang::is_empty() |>
     magrittr::not()
 
 
@@ -865,8 +865,8 @@
   if (!as_list) {
 
     meta <-
-      meta %>%
-      tibble::as_tibble() %>%
+      meta |>
+      tibble::as_tibble() |>
       dplyr::mutate_all(stringr::str_squish)
 
   }
@@ -876,54 +876,54 @@
 
 # article_xml is the XML document as an xml_document class from package xml2.
 .xml_body <- function(article_xml,
-                      get_last_two = T,
-                      remove_refs = T,
-                      remove_tables = T,
-                      remove_titles = F) {
+                      get_last_two = TRUE,
+                      remove_refs = TRUE,
+                      remove_tables = TRUE,
+                      remove_titles = FALSE) {
 
   # Removes references to citations, tables, figures and supplements
   if (remove_refs) {
 
-    article_xml %>%
-      xml2::xml_find_all(xpath = "body//xref") %>%
-      xml2::xml_remove(free = T)
+    article_xml |>
+      xml2::xml_find_all(xpath = "body//xref") |>
+      xml2::xml_remove(free = TRUE)
 
   }
 
   # Remove tables
   if (remove_tables) {
 
-    article_xml %>%
-      xml2::xml_find_all(xpath = "body//table-wrap") %>%
-      xml2::xml_remove(free = T)
+    article_xml |>
+      xml2::xml_find_all(xpath = "body//table-wrap") |>
+      xml2::xml_remove(free = TRUE)
 
   }
 
   # Remove titles
   if (remove_titles) {
 
-    article_xml %>%
-      xml2::xml_find_all(xpath = "body//title") %>%
-      xml2::xml_remove(free = T)
+    article_xml |>
+      xml2::xml_find_all(xpath = "body//title") |>
+      xml2::xml_remove(free = TRUE)
 
   }
 
   if (get_last_two) {
 
     article_txt <-
-      article_xml %>%
-      xml2::xml_find_all(xpath = "body//sec") %>%  # //sec b/c some have /sec/sec
-      tail(2) %>%
-      xml2::xml_contents() %>%
+      article_xml |>
+      xml2::xml_find_all(xpath = "body//sec") |>  # //sec b/c some have /sec/sec
+      tail(2) |>
+      xml2::xml_contents() |>
       xml2::xml_text()
 
     if (!length(article_txt)) {
 
       article_txt <-
-        article_xml %>%
-        xml2::xml_find_all(xpath = "body/p") %>%
-        tail(2) %>%
-        xml2::xml_contents() %>%
+        article_xml |>
+        xml2::xml_find_all(xpath = "body/p") |>
+        tail(2) |>
+        xml2::xml_contents() |>
         xml2::xml_text()
 
     }
@@ -931,27 +931,27 @@
     return(article_txt)
 
     # Code to extract text only
-    # article_xml %>%
-    #   xml2::xml_find_all(xpath = "body/sec") %>%
-    #   tail(1) %>%
-    #   xml2::xml_contents() %>%
-    #   xml2::xml_find_all("./text()") %>%
-    #   ml_text() %>%
+    # article_xml |>
+    #   xml2::xml_find_all(xpath = "body/sec") |>
+    #   tail(1) |>
+    #   xml2::xml_contents() |>
+    #   xml2::xml_find_all("./text()") |>
+    #   ml_text() |>
     #   paste(collapse = "")
   }
 
   article_txt <-
-    article_xml %>%
-    xml2::xml_find_all(xpath = "body/sec") %>%
-    xml2::xml_contents() %>%
+    article_xml |>
+    xml2::xml_find_all(xpath = "body/sec") |>
+    xml2::xml_contents() |>
     xml2::xml_text()
 
   if (!length(article_txt)) {
 
     article_txt <-
-      article_xml %>%
-      xml2::xml_find_all(xpath = "body/p") %>%
-      xml2::xml_contents() %>%
+      article_xml |>
+      xml2::xml_find_all(xpath = "body/p") |>
+      xml2::xml_contents() |>
       xml2::xml_text()
 
   }
@@ -960,7 +960,7 @@
 }
 
 
-.xml_methods <- function(article_xml, with_refs = T) {
+.xml_methods <- function(article_xml, with_refs = TRUE) {
 
   # TODO Misses methods sections such as "Experimental section"
   # Use the same approach as in title_pmc to better capture what is needed
@@ -971,12 +971,12 @@
   xpath_b <- "text()[contains(translate(., 'ETHOD', 'ethod'), 'ethod')]]"
 
   # Remove labels
-  # article_xml %>%
-  #   xml2::xml_find_all(xpath = "//label") %>%
-  #   xml2::xml_remove(free = T)
+  # article_xml |>
+  #   xml2::xml_find_all(xpath = "//label") |>
+  #   xml2::xml_remove(free = TRUE)
 
   methods <-
-    article_xml %>%
+    article_xml |>
     xml2::xml_find_all(xpath = xpath_methods)
 
 
@@ -984,17 +984,17 @@
 
     if (with_refs) {
 
-      methods %>%
-        xml2::xml_find_all(".//xref") %>%
+      methods |>
+        xml2::xml_find_all(".//xref") |>
         xml2::xml_set_text("REFFF")
 
     }
 
     methods_txt <-
-      methods %>%
-      xml2::xml_find_all(xpath = ".//p") %>%
+      methods |>
+      xml2::xml_find_all(xpath = ".//p") |>
       # Not necessary b/c I only keep phrases with "regist" etc. in them anyway
-      # {magrittr::extract(., 1:min(5, length(.)))} %>%
+      # {magrittr::extract(., 1:min(5, length(.)))} |>
       xml2::xml_text()
 
     return(methods_txt)
@@ -1002,21 +1002,21 @@
   }
 
   methods <-
-    article_xml %>%
+    article_xml |>
     xml2::xml_find_all(xpath = paste0(xpath_a, xpath_b))
 
   if (with_refs) {
 
-    methods %>%
-      xml2::xml_find_all(".//xref") %>%
+    methods |>
+      xml2::xml_find_all(".//xref") |>
       xml2::xml_set_text("REFFF")
 
   }
 
-  methods %>%
-    xml2::xml_find_all(xpath = ".//p") %>%
+  methods |>
+    xml2::xml_find_all(xpath = ".//p") |>
     # Not necessary b/c I only keep phrases with "regist" etc. in them anyway
-    # {magrittr::extract(., 1:min(5, length(.)))} %>%  # not necessary
+    # {magrittr::extract(., 1:min(5, length(.)))} |>  # not necessary
     xml2::xml_text()
 
 }
@@ -1033,8 +1033,8 @@
   if (!!length(abstract)) {
 
     a <-
-      abstract %>%
-      purrr::map(function(x) xml2::xml_contents(x) %>% xml2::xml_text()) %>%
+      abstract |>
+      purrr::map(function(x) xml2::xml_contents(x) |> xml2::xml_text()) |>
       purrr::map_chr(paste, collapse = ": ")
 
     return(a)
@@ -1042,9 +1042,9 @@
   } else {
 
     a <-
-      article_xml %>%
-      xml2::xml_find_all(xpath_abstract) %>%
-      xml2::xml_contents() %>%   # handles documents such as 00021-PMID30459190 better
+      article_xml |>
+      xml2::xml_find_all(xpath_abstract) |>
+      xml2::xml_contents() |>   # handles documents such as 00021-PMID30459190 better
       xml2::xml_text()
 
     return(a)
@@ -1057,9 +1057,9 @@
 
   # Look for the appropriately named element
   ack <-
-    article_xml %>%
-    xml2::xml_find_all("back/ack") %>%
-    xml2::xml_contents() %>%
+    article_xml |>
+    xml2::xml_find_all("back/ack") |>
+    xml2::xml_contents() |>
     xml2::xml_text()
 
   # Look for the title in the back matter if the element is not found
@@ -1069,9 +1069,9 @@
     xpath_b <- "text()[contains(translate(., 'ACKNOW', 'Acknow'), 'Acknow')]]"
 
     ack <-
-      article_xml %>%
-      xml2::xml_find_all(paste0(xpath_a, xpath_b)) %>%
-      xml2::xml_contents() %>%
+      article_xml |>
+      xml2::xml_find_all(paste0(xpath_a, xpath_b)) |>
+      xml2::xml_contents() |>
       xml2::xml_text()
   }
 
@@ -1082,9 +1082,9 @@
     xpath_b <- "text()[contains(translate(., 'ACKNOW', 'Acknow'), 'Acknow')]]"
 
     ack <-
-      article_xml %>%
-      xml2::xml_find_all(paste0(xpath_a, xpath_b)) %>%
-      xml2::xml_contents() %>%
+      article_xml |>
+      xml2::xml_find_all(paste0(xpath_a, xpath_b)) |>
+      xml2::xml_contents() |>
       xml2::xml_text()
   }
 
@@ -1094,9 +1094,9 @@
 
 .xml_suppl <- function(article_xml) {
 
-  article_xml %>%
-    xml2::xml_find_all("//*[self::supplementary-material or self::supplement]") %>%
-    xml2::xml_contents() %>%
+  article_xml |>
+    xml2::xml_find_all("//*[self::supplementary-material or self::supplement]") |>
+    xml2::xml_contents() |>
     xml2::xml_text()
 
 }
@@ -1104,18 +1104,18 @@
 
 
 .xml_preprocess <- function(article_xml,
-                            remove_refs = F,
-                            modify_refs = T,
-                            remove_tables = T,
-                            remove_labels = F,
-                            remove_titles = F) {
+                            remove_refs = FALSE,
+                            modify_refs = TRUE,
+                            remove_tables = TRUE,
+                            remove_labels = FALSE,
+                            remove_titles = FALSE) {
 
   # Removes references to citations, tables, figures and supplements
   if (remove_refs) {
 
-    article_xml %>%
-      xml2::xml_find_all(xpath = "//xref") %>%
-      xml2::xml_remove(free = T)
+    article_xml |>
+      xml2::xml_find_all(xpath = "//xref") |>
+      xml2::xml_remove(free = TRUE)
 
   }
 
@@ -1123,8 +1123,8 @@
   # Modify references
   if (modify_refs) {
 
-    article_xml %>%
-      xml2::xml_find_all(xpath = "//xref") %>%
+    article_xml |>
+      xml2::xml_find_all(xpath = "//xref") |>
       xml2::xml_set_text("REFFF")
 
   }
@@ -1133,45 +1133,45 @@
   # Removes tables
   if (remove_tables) {
 
-    article_xml %>%
-      xml2::xml_find_all(xpath = "//table-wrap") %>%
-      xml2::xml_remove(free = T)
+    article_xml |>
+      xml2::xml_find_all(xpath = "//table-wrap") |>
+      xml2::xml_remove(free = TRUE)
 
   }
 
   # Removes labels
   if (remove_labels) {
 
-    article_xml %>%
-      xml2::xml_find_all(xpath = "//label") %>%
-      xml2::xml_remove(free = T)
+    article_xml |>
+      xml2::xml_find_all(xpath = "//label") |>
+      xml2::xml_remove(free = TRUE)
 
-    article_xml %>%
-      xml2::xml_find_all(xpath = "//sup") %>%
-      xml2::xml_remove(free = T)
+    article_xml |>
+      xml2::xml_find_all(xpath = "//sup") |>
+      xml2::xml_remove(free = TRUE)
 
   }
 
   # Removes titles
   if (remove_titles) {
 
-    article_xml %>%
-      xml2::xml_find_all(xpath = "body//title") %>%
-      xml2::xml_remove(free = T)
+    article_xml |>
+      xml2::xml_find_all(xpath = "body//title") |>
+      xml2::xml_remove(free = TRUE)
 
   }
 }
 
 
 
-.xml_footnotes <- function(article_xml, remove_labels = F, all = F) {
+.xml_footnotes <- function(article_xml, remove_labels = FALSE, all = FALSE) {
 
   # Remove labels if not already removed by a previous function
   if (remove_labels) {
 
-    article_xml %>%
-      xml2::xml_find_all(xpath = "//label") %>%
-      xml2::xml_remove(free = T)
+    article_xml |>
+      xml2::xml_find_all(xpath = "//label") |>
+      xml2::xml_remove(free = TRUE)
 
   }
 
@@ -1180,32 +1180,32 @@
     xpath <- "front//*[self::fn or self::notes or self::author-notes or self::custom-meta-group]"
 
     first_page <-
-      article_xml %>%
-      xml2::xml_find_all(xpath) %>%
-      purrr::map(function(x) xml2::xml_contents(x) %>% xml2::xml_text()) %>%
+      article_xml |>
+      xml2::xml_find_all(xpath) |>
+      purrr::map(function(x) xml2::xml_contents(x) |> xml2::xml_text()) |>
       purrr::map_chr(paste, collapse = ": ")
 
   } else {
 
     first_page <-
-      article_xml %>%
-      xml2::xml_find_all("front//fn") %>%  # (e.g. article-meta/author-notes, notes)
-      xml2::xml_contents() %>%
+      article_xml |>
+      xml2::xml_find_all("front//fn") |>  # (e.g. article-meta/author-notes, notes)
+      xml2::xml_contents() |>
       xml2::xml_text()
 
     # Get the //fn from any element with name that contains "note" - x5 slower
     # first_page <-
-    #   article_xml %>%
-    #   xml2::xml_find_all("//*[contains(name(),'note')]") %>%
-    #   xml2::xml_find_all(".//fn") %>%
-    #   xml2::xml_contents() %>%
+    #   article_xml |>
+    #   xml2::xml_find_all("//*[contains(name(),'note')]") |>
+    #   xml2::xml_find_all(".//fn") |>
+    #   xml2::xml_contents() |>
     #   xml2::xml_text()
   }
 
   last_page <-
-    article_xml %>%
-    xml2::xml_find_all("back//*[self::fn or self::notes]") %>%
-    purrr::map(function(x) xml2::xml_contents(x) %>% xml2::xml_text()) %>%
+    article_xml |>
+    xml2::xml_find_all("back//*[self::fn or self::notes]") |>
+    purrr::map(function(x) xml2::xml_contents(x) |> xml2::xml_text()) |>
     purrr::map_chr(paste, collapse = ": ")
 
   if (!length(last_page)) {
@@ -1214,9 +1214,9 @@
     xpath_b <- "translate(., 'ACKNOW', 'Acknow'), 'Acknow'))]]"
 
     last_page <-
-      article_xml %>%
-      xml2::xml_find_all(paste0(xpath_a, xpath_b)) %>%
-      purrr::map(function(x) xml2::xml_contents(x) %>% xml2::xml_text()) %>%
+      article_xml |>
+      xml2::xml_find_all(paste0(xpath_a, xpath_b)) |>
+      purrr::map(function(x) xml2::xml_contents(x) |> xml2::xml_text()) |>
       purrr::map_chr(paste, collapse = ": ")
 
   }
@@ -1229,7 +1229,7 @@
 .node_exists <- function(xml_doc, node){
 
   xpath <- paste0("//", node)
-  nodeset <- xml_doc %>% xml2::xml_find_all(xpath = xpath)
+  nodeset <- xml_doc |> xml2::xml_find_all(xpath = xpath)
   return(!!length(nodeset))
 
 }
@@ -1248,18 +1248,18 @@
 
   if (find_first) {
 
-    article_xml %>%
-      xml2::xml_find_first(xpath) %>%
-      xml2::xml_contents() %>%
-      xml2::xml_text() %>%
+    article_xml |>
+      xml2::xml_find_first(xpath) |>
+      xml2::xml_contents() |>
+      xml2::xml_text() |>
       paste(collapse = "; ")
 
   } else {
 
-    article_xml %>%
-      xml2::xml_find_all(xpath) %>%
-      xml2::xml_contents() %>%
-      xml2::xml_text() %>%
+    article_xml |>
+      xml2::xml_find_all(xpath) |>
+      xml2::xml_contents() |>
+      xml2::xml_text() |>
       paste(collapse = "; ")
 
   }
@@ -1278,13 +1278,13 @@
 #' @returns The xml_document reconfigure to start with the "article" node.
 .reroot_xml <- function(article_xml) {
 
-  top_node_name <- article_xml %>% xml2::xml_name()
+  top_node_name <- article_xml |> xml2::xml_name()
 
   if (top_node_name != "article") {
 
-    article_xml %>%
-      xml2::xml_find_all("//metadata") %>%
-      xml2::as_list() %>%
+    article_xml |>
+      xml2::xml_find_all("//metadata") |>
+      xml2::as_list() |>
       xml2::as_xml_document()
   }
 }
@@ -1296,21 +1296,21 @@
 #' Returns the file as an xml_document.
 #'
 #' @param filename The filepath to the PMC XML file of interest.
-#' @param remove_ns Whether to remove the XML namespace or not (default = F).
+#' @param remove_ns Whether to remove the XML namespace or not (default = FALSE).
 #' @return The PMC XML as an xml_document.
-.get_xml <- function(filename, remove_ns = F) {
+.get_xml <- function(filename, remove_ns = FALSE) {
 
   if (remove_ns) {
 
     article_xml <-
-      filename %>%
-      xml2::read_xml() %>%
+      filename |>
+      xml2::read_xml() |>
       xml2::xml_ns_strip()
 
   } else {
 
     article_xml <-
-      filename %>%
+      filename |>
       xml2::read_xml()
 
   }
@@ -1337,7 +1337,7 @@
     "front/article-meta/article-id[@pub-id-type = 'doi']"
   )
 
-  xpath %>%
-    purrr::map(~ .get_text(article_xml, .x, T)) %>%
+  xpath |>
+    purrr::map(\(x) .get_text(article_xml, x, TRUE)) |>
     rlang::set_names(c("pmid", "pmcid_pmc", "pmcid_uid", "doi"))
 }

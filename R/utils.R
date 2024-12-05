@@ -10,16 +10,16 @@
 
   j_p_a_i <- "([A-Z])(\\.)\\s*([A-Z])(\\.)\\s*([A-Z])(\\.)"
 
-  article %>%
-    stringr::str_replace_all(j_p_a_i, "\\1 \\3 \\5") %>%
-    stringr::str_replace_all("([A-Z])(\\.)\\s*([A-Z])(\\.)", "\\1 \\3") %>%
-    stringr::str_replace_all("(\\s[A-Z])(\\.) ([A-Z][a-z]+)", "\\1 \\3") %>%
-    stringr::str_replace_all("\\.\\s*([a-z0-9])", " \\1") %>%
-    stringr::str_replace_all("\\.([A-Z])", " \\1") %>%
-    stringr::str_replace_all("\\.\\s*([A-Z]+[0-9])", " \\1") %>%
-    stringr::str_replace_all("\\.([^\\s0-9\\[])", "\\1") %>%
-    stringr::str_replace_all("\\.\\s+(\\()", " \\1") %>%
-    stringr::str_replace_all("([0-9])\\.([0-9])", "\\1\\2") %>%
+  article |>
+    stringr::str_replace_all(j_p_a_i, "\\1 \\3 \\5") |>
+    stringr::str_replace_all("([A-Z])(\\.)\\s*([A-Z])(\\.)", "\\1 \\3") |>
+    stringr::str_replace_all("(\\s[A-Z])(\\.) ([A-Z][a-z]+)", "\\1 \\3") |>
+    stringr::str_replace_all("\\.\\s*([a-z0-9])", " \\1") |>
+    stringr::str_replace_all("\\.([A-Z])", " \\1") |>
+    stringr::str_replace_all("\\.\\s*([A-Z]+[0-9])", " \\1") |>
+    stringr::str_replace_all("\\.([^\\s0-9\\[])", "\\1") |>
+    stringr::str_replace_all("\\.\\s+(\\()", " \\1") |>
+    stringr::str_replace_all("([0-9])\\.([0-9])", "\\1\\2") |>
     stringr::str_replace_all("\\.(\\s*[[:punct:]])", "\\1")
 
 }
@@ -34,7 +34,7 @@
 #' @return The list of paragraphs without mentions of financial COIs.
 .obliterate_semicolon_1 <- function(article) {
 
-  article %>% stringr::str_replace_all("(\\(.*); (.*\\))", "\\1 - \\2")
+  article |> stringr::str_replace_all("(\\(.*); (.*\\))", "\\1 - \\2")
 
 }
 
@@ -47,7 +47,7 @@
 #' @return The list of paragraphs without mentions of financial COIs.
 .obliterate_comma_1 <- function(article) {
 
-  article %>% stringr::str_replace_all(", ", " ")
+  article |> stringr::str_replace_all(", ", " ")
 
 }
 
@@ -62,8 +62,8 @@
 #' @return The list of paragraphs without mentions of financial COIs.
 .obliterate_apostrophe_1 <- function(article) {
 
-  article %>%
-    stringr::str_replace_all("([a-zA-Z])'([a-zA-Z])", "\\1\\2") %>%
+  article |>
+    stringr::str_replace_all("([a-zA-Z])'([a-zA-Z])", "\\1\\2") |>
     stringr::str_replace_all("[a-z]+s'", "s")
 
 }
@@ -77,7 +77,7 @@
 #' @return The list of paragraphs without mentions of financial COIs.
 .obliterate_hash_1 <- function(article) {
 
-  article %>% stringr::str_replace_all("#", "")
+  article |> stringr::str_replace_all("#", "")
 
 }
 
@@ -91,7 +91,7 @@
 .obliterate_punct_1 <- function(article) {
 
   punct <- '[~@#$%^&*{}_+"<>?/=]'  # not :()[] b/c they are informative
-  article %>% stringr::str_replace_all(punct, "")
+  article |> stringr::str_replace_all(punct, "")
   # do not add a space, otherwise will mess with other functions
   # e.g. get_ct_2, which only allows 2 words between This and study
 
@@ -106,7 +106,7 @@
 #' @return The list of paragraphs with no remaining line break tags.
 .obliterate_line_break_1 <- function(article) {
 
-  article %>% stringr::str_replace_all("\n", " ")
+  article |> stringr::str_replace_all("\n", " ")
 
 }
 
@@ -146,8 +146,8 @@
   contribs_title <- paste0("^", contribs, ".*$")
   contribs_intxt <- paste0(contribs, "\\s*(:|-|\\.)", txt, "\\.")
 
-  article %>%
-    stringr::str_replace_all(contribs_title, "") %>%
+  article |>
+    stringr::str_replace_all(contribs_title, "") |>
     stringr::str_replace_all(contribs_intxt, "")
     # not very effective without removing full stops
 
@@ -160,9 +160,9 @@
 .correct_tokenization <- function(PDF_text)
 {
   PDF_text_corrected <- PDF_text
-  sentence_paste_idx <- PDF_text %>%
-    stringr::str_sub(-13, -1) %>%
-    stringr::str_detect("accession nr.|accession no.|ccession nos.|ccession nrs.") %>%
+  sentence_paste_idx <- PDF_text |>
+    stringr::str_sub(-13, -1) |>
+    stringr::str_detect("accession nr.|accession no.|ccession nos.|ccession nrs.") |>
     which()
 
   #for all indicies do a pairwise pasting
@@ -209,13 +209,13 @@
   next_sentence <- "((|:|\\.)|(|:|\\.) [A-Z0-9]+.*)$"
 
   ref_index <-
-    synonyms %>%
-    magrittr::extract(words) %>%
-    lapply(paste0, next_sentence) %>%
-    # lapply(.title) %>%
-    lapply(.encase) %>%
-    # lapply(.max_words) %>%
-    paste() %>%
+    synonyms |>
+    magrittr::extract(words) |>
+    lapply(paste0, next_sentence) |>
+    # lapply(.title) |>
+    lapply(.encase) |>
+    # lapply(.max_words) |>
+    paste() |>
     grep(article, perl = T)
 
   # ref_synonyms <- c(
@@ -302,13 +302,13 @@
   words <- c("Methods", "Abstract", "Results", "Conclusion")
 
   method_index <-
-    synonyms %>%
-    magrittr::extract(words[1]) %>%
-    lapply(.title_strict) %>%
-    lapply(stringr::str_sub, end = -2) %>%  # remove the $
-    # lapply(paste, "($|\\s+[A-Z]") %>%  # TODO: if too sensitive, uncomment
-    lapply(.encase) %>%
-    paste() %>%
+    synonyms |>
+    magrittr::extract(words[1]) |>
+    lapply(.title_strict) |>
+    lapply(stringr::str_sub, end = -2) |>  # remove the $
+    # lapply(paste, "($|\\s+[A-Z]") |>  # TODO: if too sensitive, uncomment
+    lapply(.encase) |>
+    paste() |>
     grep(article, perl = T)
 
   if (!!length(method_index)) {
@@ -318,9 +318,9 @@
 
     # TODO: if too sensitive, uncomment
     # is_abstract <-
-    #   synonyms %>%
-    #   magrittr::extract(words[2:4]) %>%
-    #   grepl(article[(method_index - 3):(method_index + 3)]) %>%
+    #   synonyms |>
+    #   magrittr::extract(words[2:4]) |>
+    #   grepl(article[(method_index - 3):(method_index + 3)]) |>
     #   any()
     #
     # if (!is_abstract) {
@@ -331,12 +331,12 @@
   }
 
   method_index <-
-    synonyms %>%
-    magrittr::extract(words[1]) %>%
-    lapply(.title_strict, within_text = T) %>%
-    lapply(paste, "[A-Z]", sep = "\\s*") %>%
-    lapply(.encase) %>%
-    paste() %>%
+    synonyms |>
+    magrittr::extract(words[1]) |>
+    lapply(.title_strict, within_text = T) |>
+    lapply(paste, "[A-Z]", sep = "\\s*") |>
+    lapply(.encase) |>
+    paste() |>
     grep(article, perl = T)
 
   if (!!length(method_index)) {
@@ -1126,17 +1126,17 @@
   # )
 
   # synonyms[["registration_title"]] <-
-  #   synonyms[["registration_title_3"]] %>%
+  #   synonyms[["registration_title_3"]] |>
   #   .first_capital()
 
   # Captures "Trial details" and used with negation - worth the duplication
   # synonyms[["registration_title"]] <- expand.grid(
   #   synonyms[["registration_title_1"]],
   #   synonyms[["registration_title_2"]]
-  # ) %>%
-  #   purrr::pmap(paste, sep = " ") %>%
-  #   unlist() %>%
-  #   append(synonyms[["registration_title_3"]]) %>%
+  # ) |>
+  #   purrr::pmap(paste, sep = " ") |>
+  #   unlist() |>
+  #   append(synonyms[["registration_title_3"]]) |>
   #   .first_capital()
 
   # Adding the top 4 adds negligible amount of time

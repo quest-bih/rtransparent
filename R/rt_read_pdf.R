@@ -24,14 +24,14 @@ rt_read_pdf <- function(filepath){
     stop("The provided filepath does not exist.")
   }
 
-  if (!grepl("\\.pdf$", filepath, ignore.case = T)) {
+  if (!grepl("\\.pdf$", filepath, ignore.case = TRUE)) {
     stop("The filepath of a PDF file should end in '.pdf'.")
   }
 
   # Convert PDF to TXT
   tryCatch({
     command <- paste0('pdftotext ', '\"', filepath, '\" ', '\"', "-", '\"')
-    txt_as_vector <- system(command, intern = T, wait = T)
+    txt_as_vector <- system(command, intern = TRUE, wait = TRUE)
   },
     error = function(e) {
       stop("Could not convert PDF to text.")

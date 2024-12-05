@@ -9,7 +9,7 @@
 
   # Just using the NCT was too sensitive
   # e.g. picked up references to protocols, mentions of trials underway, etc.
-  grep("\\b(|pre|pre-)regist.{0,20}NCT[0-9]{8}", article, perl = T)
+  grep("\\b(|pre|pre-)regist.{0,20}NCT[0-9]{8}", article, perl = TRUE)
 
 }
 
@@ -30,7 +30,7 @@
 
   c(the_study, ct_nct) %>%
     paste(collapse = dict$txt) %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
 }
 
@@ -51,7 +51,7 @@
 
   ct_nct %>%
     paste(collapse = dict$txt) %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 }
 
 
@@ -67,7 +67,7 @@
 
   # Just using the NCT was too sensitive
   # e.g. picked up references to protocols, mentions of trials underway, etc.
-  grep("\\bP(?i)ROSPERO\\b(?-i).*CRD\\s*[0-9]{5}", article, perl = T)
+  grep("\\bP(?i)ROSPERO\\b(?-i).*CRD\\s*[0-9]{5}", article, perl = TRUE)
 
 }
 
@@ -92,21 +92,21 @@
     magrittr::extract(words[c(1, 2)]) %>%
     lapply(.bound) %>%
     lapply(.encase) %>%
-    paste(collapse = .max_words(" ", 5, space_first = F))
+    paste(collapse = .max_words(" ", 5, space_first = FALSE))
 
   this_research_registered <-
     dict %>%
     magrittr::extract(words[c(1, 2, 4)]) %>%
     lapply(.bound) %>%
     lapply(.encase) %>%
-    paste(collapse = .max_words(" ", 5, space_first = F))
+    paste(collapse = .max_words(" ", 5, space_first = FALSE))
 
   and_registered <-
     dict %>%
     magrittr::extract(words[c(3:4)]) %>%
     lapply(.bound) %>%
     lapply(.encase) %>%
-    paste(collapse = .max_words(" ", 5, space_first = F))
+    paste(collapse = .max_words(" ", 5, space_first = FALSE))
 
   research_and_registered <-
     dict %>%
@@ -123,13 +123,13 @@
   #   lapply(.encase) %>%
   #   .encase() %>%
   #   paste("([A-Z]{2}\\s*[0-9]{2}|[0-9]{5})", sep = dict$txt) %>%
-  #   grep(article, perl = T)
+  #   grep(article, perl = TRUE)
 
   c(this_research_registered, this_research_and_registered) %>%
     lapply(.encase) %>%
     .encase() %>%
     paste("([A-Z]{2}\\s*[0-9]{2}|[0-9]{5})", sep = dict$txt) %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
 }
 
@@ -150,7 +150,7 @@
   ) %>%
     paste(collapse = dict$txt) %>%
     paste("([A-Z]{2}\\s*[0-9]{2}|[0-9]{5})", sep = dict$txt) %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
 }
 
@@ -167,7 +167,7 @@
 
   c("([Tt]rial|[Pp]rotocol) (registered|registration) (with\\b|under\\b|on\\b|at\\b|as\\b)") %>%
     paste("([A-Z]{2}\\s*[0-9]{2}|[0-9]{5})", sep = dict$txt) %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
 }
 
@@ -193,9 +193,9 @@
     magrittr::extract(words) %>%
     lapply(.bound) %>%
     lapply(.encase) %>%
-    paste(collapse = .max_words(" ", 5, space_first = F)) %>%
+    paste(collapse = .max_words(" ", 5, space_first = FALSE)) %>%
     paste("([A-Z]{2}\\s*[0-9]{2}|[0-9]{5})", sep = dict$txt) %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
 }
 
@@ -235,14 +235,14 @@
     magrittr::extract(words[4]) %>%
     lapply(.bound) %>%
     lapply(.encase) %>%
-    paste(the_SOME_research, ., sep = .max_words(" ", 5, space_first = F))
+    paste(the_SOME_research, ., sep = .max_words(" ", 5, space_first = FALSE))
 
   and_registered <-
     dict %>%
     magrittr::extract(words[c(3:4)]) %>%
     lapply(.bound) %>%
     lapply(.encase) %>%
-    paste(collapse = .max_words(" ", 5, space_first = F))
+    paste(collapse = .max_words(" ", 5, space_first = FALSE))
 
   the_SOME_research_and_registered <-
     the_SOME_research %>%
@@ -253,7 +253,7 @@
     lapply(.encase) %>%
     .encase() %>%
     paste("([A-Z]{2}\\s*[0-9]{2}|[0-9]{5})", sep = dict$txt) %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
 }
 
@@ -274,9 +274,9 @@
     magrittr::extract(words) %>%
     lapply(.bound, location = "both") %>%
     lapply(.encase) %>%
-    paste(collapse = .max_words(" ", n_max = 4, space_first = F)) %>%
+    paste(collapse = .max_words(" ", n_max = 4, space_first = FALSE)) %>%
     paste(" not", " registered", sep = .max_words("", n_max = 6)) %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 }
 
 
@@ -302,7 +302,7 @@
 
   c(research_registration, "([A-Z]{2}\\s*[0-9]{2}|[0-9]{5})") %>%
     paste(collapse = dict$txt) %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
 }
 
@@ -328,7 +328,7 @@
 
   c(research_registration, "([A-Z]{2}\\s*[0-9]{2}|[0-9]{5})") %>%
     paste(collapse = dict$txt) %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
 }
 
@@ -343,7 +343,7 @@
 .which_registration_3 <- function(article) {
 
   grep("(^|\\.).{0,35}\\b(|pre|pre-)registration.{0,35}NCT[0-9]{8}",
-       article, perl = T)
+       article, perl = TRUE)
 
 }
 
@@ -367,13 +367,13 @@
     magrittr::extract(words[c(1, 2)]) %>%
     lapply(.bound) %>%
     lapply(.encase) %>%
-    paste(collapse = .max_words(" ", 5, space_first = F))
+    paste(collapse = .max_words(" ", 5, space_first = FALSE))
 
   c(this_research) %>%
     lapply(.encase) %>%
     .encase() %>%
     paste("registration", "([A-Z]{2}\\s*[0-9]{2}|[0-9]{5})", sep = dict$txt) %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
 }
 
@@ -403,7 +403,7 @@
   a <-
     c(research_registry, "[\\s,;:]+([A-Z]{2,10}\\s*[0-9]{2}|[0-9]{5})") %>%
     paste(collapse = dict$txt) %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
   if (!!length(a)) {
 
@@ -440,7 +440,7 @@
     lapply(.title_strict) %>%
     lapply(.encase) %>%
     paste() %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
   if (!!length(a)) {
 
@@ -470,10 +470,10 @@
     dict %>%
     magrittr::extract(words) %>%
     lapply(.bound) %>%
-    lapply(.title_strict, within_text = T) %>%
+    lapply(.title_strict, within_text = TRUE) %>%
     lapply(.encase) %>%
     paste() %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
   if (!!length(a)) {
 
@@ -515,7 +515,7 @@
     lapply(.bound) %>%
     lapply(.title_strict) %>%
     .encase %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
   if (!!length(a)) {
 
@@ -545,9 +545,9 @@
   a <-
     reg_title_synonyms %>%
     lapply(.bound) %>%
-    lapply(.title_strict, within_text = T) %>%
+    lapply(.title_strict, within_text = TRUE) %>%
     .encase %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
   return(a)
 }
@@ -592,7 +592,7 @@
   a <-
     paste(start, registration, number, finish, sep = "\\s*") %>%
     paste0("$") %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
 
   if (!!length(a)) {
@@ -622,7 +622,7 @@
 
   a <-
     paste(start, registration, number, finish, sep = "\\s*") %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
   if (!!length(a)) {
 
@@ -673,7 +673,7 @@
   a <-
     paste(start, registration, number, finish, sep = "\\s*") %>%
     paste0("$") %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
   if (!!length(a)) {
 
@@ -701,7 +701,7 @@
 
   a <-
     paste(start, registration, number, finish, sep = "\\s*") %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
   if (!!length(a)) {
 
@@ -762,7 +762,7 @@
     lapply(.bound) %>%
     lapply(.encase) %>%
     paste(collapse = dict$txt) %>%
-    grep(article, perl = T)
+    grep(article, perl = TRUE)
 
 }
 
@@ -776,7 +776,7 @@
 #' @return Index of element with phrase of interest
 .which_protocol_2 <- function(article) {
 
-  grep("[Pp]rotocol .{0,5}(|[A-Z]+)[0-9]{5}", article, perl = T)
+  grep("[Pp]rotocol .{0,5}(|[A-Z]+)[0-9]{5}", article, perl = TRUE)
 
 }
 
@@ -801,7 +801,7 @@
     "[A-Z]{2,7}.{0,20}[Cc]linical[Tt]rial.{0,20}NCT[0-9]{8}"
   )
 
-  grep(funded_by_SOME_ct_NCT, article, perl = T)
+  grep(funded_by_SOME_ct_NCT, article, perl = TRUE)
 
 }
 
@@ -822,7 +822,7 @@
   code <- "[\\s,;:]+([A-Z]{2,10}\\s*[0-9]{2}|[0-9]{5})"
 
   paste(research, "approv", registry, code, sep = dict$txt) %>%
-    grepl(article, perl = T)
+    grepl(article, perl = TRUE)
 
 }
 
@@ -900,7 +900,7 @@
     article[ref_from] <- ""
     article[ref_from:ref_to] <-
       gsub("^([0-9]{1,3}\\.\\s|.*et al\\.).*$", "",
-           article[ref_from:ref_to], perl = T)
+           article[ref_from:ref_to], perl = TRUE)
 
   }
   return(article)
@@ -1035,7 +1035,7 @@
     is_relevant_reg = NA,
     is_method = NA,
     is_NCT = NA,
-    is_register_pred = FALSE,
+    is_register_pred = FALSEALSE,
     register_text = "",
     is_explicit_reg = NA
   )
@@ -1208,10 +1208,10 @@
 #' filepath <- "../inst/extdata/00003-PMID26637448-PMC4737611.xml"
 #'
 #' # Identify and extract meta-data and indicators of transparency.
-#' results_table <- rt_register_pmc(filepath, remove_ns = T)
+#' results_table <- rt_register_pmc(filepath, remove_ns = TRUE)
 #' }
 #' @export
-rt_register_pmc <- function(filename, remove_ns = F) {
+rt_register_pmc <- function(filename, remove_ns = FALSE) {
 
   # TODO Update to match format of rt_coi_pmc.
 
@@ -1265,11 +1265,11 @@ rt_register_pmc <- function(filename, remove_ns = F) {
     doi = NA,
     is_research = NA,
     is_review = NA,
-    is_slr = FALSE,
+    is_slr = FALSEALSE,
     is_relevant = NA,
     is_method = NA,
     is_NCT = NA,
-    is_register_pred = FALSE,
+    is_register_pred = FALSEALSE,
     register_text = "",
     is_explicit = NA
   )
@@ -1280,7 +1280,7 @@ rt_register_pmc <- function(filename, remove_ns = F) {
 
   if (inherits(article_xml, "error")) {
 
-    return(tibble::tibble(filename, is_success = F))
+    return(tibble::tibble(filename, is_success = FALSE))
 
   }
 
@@ -1289,7 +1289,7 @@ rt_register_pmc <- function(filename, remove_ns = F) {
   out %<>% purrr::list_modify(!!!purrr::map(xpath, ~ .get_text(article_xml, .x, T)))
   # out <-
   #   xpath %>%
-  #   lapply(.get_text, article_xml = article_xml, find_first = T) %>%
+  #   lapply(.get_text, article_xml = article_xml, find_first = TRUE) %>%
   #   {purrr::list_modify(out, !!!.)}
 
 
@@ -1323,7 +1323,7 @@ rt_register_pmc <- function(filename, remove_ns = F) {
   # if (out$is_review) {
   #
   #   txt <- xml_text(article_xml)
-  #   out$is_slr <- grepl("systematic review", txt, ignore.case = T)
+  #   out$is_slr <- grepl("systematic review", txt, ignore.case = TRUE)
   #
   #   if (!out$is_slr) {
   #
