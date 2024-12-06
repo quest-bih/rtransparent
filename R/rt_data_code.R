@@ -23,16 +23,16 @@ rt_data_code <- function(filename) {
 
   # Tokenize
   article_tokens <-
-    article %>%
-    .obliterate_fullstop_1() %>%
-    .tokenize() %>%
-    list() %>%
+    article |> 
+    .obliterate_fullstop_1() |> 
+    .tokenize() |> 
+    list() |> 
     rlang::set_names("10.17605/OSF.IO/E58WS")  # otherwise oddpub throws error
 
   # Extract indicators
   # The article field is not used within this
   out_df <-
-    oddpub::open_data_search(article_tokens, detected_sentences = T) %>%
+    oddpub::open_data_search(article_tokens, extract_sentences = TRUE)  |> 
     dplyr::mutate(article = NA)
 
   # Return

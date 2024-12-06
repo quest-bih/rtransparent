@@ -862,8 +862,8 @@ obliterate_apostrophe_1 <- function(article) {
   txt_2 <- "[a-z]+s'"
   
   article |>
-    purrr::map(gsub, pattern = TRUExt_1, replacement = "\\1\\2") |>
-    purrr::map(gsub, pattern = TRUExt_2, replacement = "s")
+    purrr::map(gsub, pattern = txt_1, replacement = "\\1\\2") |>
+    purrr::map(gsub, pattern = txt_2, replacement = "s")
   
 }
 
@@ -1080,7 +1080,8 @@ rt_register <- function(filename) {
         
         to <- from + 10
         
-        paragraphs_pruned[from:to] %<>% lapply(obliterate_refs_1)
+        paragraphs_pruned[from:to] <- paragraphs_pruned[from:to] |> 
+          lapply(obliterate_refs_1)
         
         index_method[["ct_2"]] <- get_ct_2(paragraphs_pruned[from:to])
         index_method[["protocol_1"]] <- get_protocol_1(paragraphs_pruned[from:to])
@@ -1103,11 +1104,15 @@ rt_register <- function(filename) {
     
     is_register_pred <- FALSE
     register_text <- ""
+    index_method <- list()
+    index_any <- list()
     
   }
   
-  index_any %<>% purrr::map(\(x) !!length(x))
-  index_method %<>% purrr::map(\(x) !!length(x))
+  index_any <- index_any |>
+    purrr::map(\(x) !!length(x))
+  index_method <- index_method |> 
+    purrr::map(\(x) !!length(x))
   
   results <-
     tibble::tibble(
