@@ -30,7 +30,7 @@ Then, install the `rtransparent` package. Note that you need to use the argument
 accessible.
 
 ```r
-devtools::install_github("serghiou/rtransparent", build_vignettes = T)
+devtools::install_github("quest-bih/rtransparent")
 ```
 
 
