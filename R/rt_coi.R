@@ -22,7 +22,7 @@ rt_coi <- function(filename) {
 
   paper_text <- readr::read_file(filename)
   # Do the UTF-8 encoding here because it creates problems with multiple funs
-  splitted <- strsplit(paper_text, "\n| \\*")[[1]] %>% utf8::utf8_encode()
+  splitted <- strsplit(paper_text, "\n| \\*")[[1]] |> utf8::utf8_encode()
 
   conflict <- "conflict of interest"
   conflicts <- "conflicts of interest"
@@ -32,17 +32,17 @@ rt_coi <- function(filename) {
   declare <- "declaration of interest"
   dual <- "duality of interest"
 
-  is_conflict = agrep(conflict, splitted, ignore.case = T)
-  is_conflicts = agrep(conflicts, splitted, ignore.case = T)
-  is_competing = agrep(competing, splitted, ignore.case = T)
-  is_disclosure = agrep(disclosure, splitted, ignore.case = T)
-  is_finance = agrep(finance, splitted, ignore.case = T)
-  is_declare = agrep(declare, splitted, ignore.case = T)
-  is_dual = agrep(dual, splitted, ignore.case = T)
+  is_conflict <- agrep(conflict, splitted, ignore.case = TRUE)
+  is_conflicts <- agrep(conflicts, splitted, ignore.case = TRUE)
+  is_competing <- agrep(competing, splitted, ignore.case = TRUE)
+  is_disclosure <- agrep(disclosure, splitted, ignore.case = TRUE)
+  is_finance <- agrep(finance, splitted, ignore.case = TRUE)
+  is_declare <- agrep(declare, splitted, ignore.case = TRUE)
+  is_dual <- agrep(dual, splitted, ignore.case = TRUE)
 
   # Exclude financial disclosures
   if (length(is_disclosure) > 0) {
-    a <- grep("financial disclosure", splitted[is_disclosure], ignore.case = T, invert = T)
+    a <- grep("financial disclosure", splitted[is_disclosure], ignore.case = TRUE, invert = TRUE)
     is_disclosure <- is_disclosure[a]
   }
 
@@ -60,14 +60,14 @@ rt_coi <- function(filename) {
       is_capital_4 <- agrepl("COMPET", splitted[the_conflicts[j]])
       is_capital <- any(c(is_capital_1, is_capital_2, is_capital_3, is_capital_4))
       # No mention of "no"
-      is_no <- agrepl("no.{0,20}conflict", splitted[the_conflicts[j]], ignore.case = T)
+      is_no <- agrepl("no.{0,20}conflict", splitted[the_conflicts[j]], ignore.case = TRUE)
       # No mention of authors (needed for 0245)
-      is_author <- agrepl("author", splitted[the_conflicts[j]], ignore.case = T)
+      is_author <- agrepl("author", splitted[the_conflicts[j]], ignore.case = TRUE)
       # No punctuation after interests
       is_punctuation <-
-        agrepl("interest.{0,1}[.:;,]", splitted[the_conflicts[j]], ignore.case = T)
+        agrepl("interest.{0,1}[.:;,]", splitted[the_conflicts[j]], ignore.case = TRUE)
       # No mention of reporting after interests
-      is_report <- grepl("disclosed|reported|mentioned|declared|communicated|revealed|divulged|aired|voiced|expressed", splitted[the_conflicts[j]], ignore.case = T)
+      is_report <- grepl("disclosed|reported|mentioned|declared|communicated|revealed|divulged|aired|voiced|expressed", splitted[the_conflicts[j]], ignore.case = TRUE)
 
       if (!is_capital & !is_no & !is_punctuation & !is_report & !is_author) {
         the_conflicts[j] <- NA
@@ -76,7 +76,7 @@ rt_coi <- function(filename) {
     the_conflicts <- the_conflicts[!is.na(the_conflicts)]
   }
 
-  index <- unique(c(the_conflicts, is_disclosure, is_finance, is_declare, is_dual)) %>% sort()
+  index <- unique(c(the_conflicts, is_disclosure, is_finance, is_declare, is_dual)) |>  sort()
 
   article <- basename(filename)
   pmid <- gsub("^.*PMID([0-9]+).*$", "\\1", filename)
@@ -85,7 +85,7 @@ rt_coi <- function(filename) {
   # If a hit ends with interest or starts with Disclosure, more likely to be COI
   vals <- c("interest.{0,1}:|Disclosure.{0,1}:")
   if (length(index) > 1) {
-    a <- grep(vals, splitted[index], ignore.case = T)
+    a <- grep(vals, splitted[index], ignore.case = TRUE)
 
     if (length(a) > 0) {  # only do this if a hit was found
       index <- index[index >= index[min(a)]]
@@ -99,24 +99,27 @@ rt_coi <- function(filename) {
     }
   }
 
-  coi_text <- splitted[index] %>% unlist %>% paste(., collapse = " ")
+  coi_text <- splitted[index] |> unlist() |> paste(x = _, collapse = " ")
 
   # Identify text that may have been  missed because it was in a new line
   if (length(index) == 1) {
-    no_stop_words <- gsub(" of ", " ", coi_text,  ignore.case = T)
+    no_stop_words <- gsub(" of ", " ", coi_text,  ignore.case = TRUE)
     if (length(strsplit(no_stop_words, " ")[[1]]) < 4) {
-      if (!grepl("no", splitted[index], ignore.case = T)) {
-        if (nchar(splitted[index + 1]) == 0) {
-          index <- c(index, index + 2)
-        } else {
-          index <- c(index, index + 1)
-        }
-        new_str <- gsub("^.+(None.*$)", "\\1", splitted[index[2]])
-        if (grepl("^.*\\.$", new_str)) {
-          # make sure this is a whole sentence
-          coi_text <- paste(coi_text, new_str)
-        } else {
-          coi_text <- paste(coi_text, new_str, splitted[index[2] + 1])
+      if (!grepl("no", splitted[index], ignore.case = TRUE)) {
+        if (index != length(splitted)) {
+          if (nchar(splitted[index + 1]) == 0) {
+            index <- c(index, index + 2)
+          } else {
+            index <- c(index, index + 1)
+          }
+          new_str <- gsub("^.+(None.*$)", "\\1", splitted[index[2]])
+          
+          if (grepl("^.*\\.$", new_str)) {
+            # make sure this is a whole sentence
+            coi_text <- paste(coi_text, new_str)
+          } else {
+            coi_text <- paste(coi_text, new_str, splitted[index[2] + 1])
+          }
         }
       }
     }
@@ -140,7 +143,7 @@ rt_coi <- function(filename) {
     is_no <- any(c(is_no_1, is_no_2))
     # Punctuation
     # (disclose. needed for 0245)
-    is_punctuation <- grepl("disclosure.{0,1}[.:;,]", coi_text, ignore.case = T)
+    is_punctuation <- grepl("disclosure.{0,1}[.:;,]", coi_text, ignore.case = TRUE)
     # Mention of author
     is_author <- grepl("Author.{0,2} [dD]isclo", coi_text)
 
@@ -159,13 +162,13 @@ rt_coi <- function(filename) {
       "^.*?(Disclosure.*conflict.*$)|^.*?(Disclosure.*compet.*$)|^.*?(Declaration of Conflict.*$)|^.*?(Declaration of Interest.*$)|^.*?(Potential conflict.{0,1} of interest.*$)|^.*?(Conflict.*$)|^.*?(Competing.*$)",  # disclosure may refer to financial disclosures
       "\\1\\2\\3\\4\\5\\6\\7",
       coi_text,
-      fixed = F
+      fixed = FALSE
     )
 
   # Capture disclosures that do not contain "conflict" but are relevant
-  if (grepl("disclosure", coi_text, ignore.case = T)) {
+  if (grepl("disclosure", coi_text, ignore.case = TRUE)) {
     val <- "^.*conflict.*disclosure.*$|^.*compet.*disclosure.*$"
-    if (!grepl(val, coi_text, ignore.case = T)) {
+    if (!grepl(val, coi_text, ignore.case = TRUE)) {
       coi_text <- gsub( "^.*?(Disclosure.*$)", "\\1", coi_text, fixed = F)
     }
   }
@@ -176,7 +179,7 @@ rt_coi <- function(filename) {
       "(^.+None\\.).*$|(^.+None disclosed\\.).*$|(^.+None reported\\.).*$|(^.+None declared\\.).*$|(^.+None mentioned\\.).*$|(^.+None aired\\.).*$|(^.+None communicated\\.).*$|(^.+None revealed\\.).*$|(^.+Nothing to declare\\.).*$|(^.+No\\.).*$|(^.+Nil\\.).*$",
       "\\1\\2\\3\\4",
       coi_text,
-      fixed = F, ignore.case = T
+      fixed = F, ignore.case = TRUE
     )
 
   # Correct statements with repeating sentences (e.g. 0036, 0405)
@@ -223,7 +226,7 @@ rt_coi <- function(filename) {
     }
   }
 
-  coi_text %<>% trimws()
+  coi_text <- coi_text |> trimws()
 
-  data.frame(article, pmid, is_coi_pred, coi_text, stringsAsFactors = F)
+  data.frame(article, pmid, is_coi_pred, coi_text, stringsAsFactors = FALSE)
 }
